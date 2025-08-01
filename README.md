@@ -183,3 +183,30 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For support, create an issue in the GitHub repository.
+
+## Version 2.0 - Open Source Edition
+
+This version removes all Azure dependencies and uses open-source alternatives:
+
+- **Tesseract OCR** instead of Azure Document Intelligence
+- **LayoutParser** for document layout analysis
+- **Local file storage** instead of Azure Blob Storage
+- **OpenCV & PIL** for image processing
+
+### New Features
+
+- No cloud dependencies required
+- Completely free and open-source
+- Easier deployment and setup
+- Support for multiple OCR languages
+- Local file storage with organized structure
+
+### Migration from Azure Version
+
+If you're migrating from the Azure version:
+
+1. Back up your data
+2. Update environment variables (remove Azure keys)
+3. Run database migrations
+4. Reprocess documents with new OCR engine
+

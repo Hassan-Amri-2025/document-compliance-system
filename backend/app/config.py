@@ -1,91 +1,127 @@
+"""
+Application configuration with open-source alternatives
+No Azure dependencies required
+"""
+
+from typing import List, Optional
 from pydantic_settings import BaseSettings
-from pydantic import Field, validator
-from typing import Optional, List
+from pydantic import validator
 import os
-from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    # Application
+    # Application Settings
     APP_NAME: str = "Document Compliance System"
-    APP_VERSION: str = "1.0.0"
-    ENVIRONMENT: str = Field("development", env="ENVIRONMENT")
-    DEBUG: bool = Field(True, env="DEBUG")
-    LOG_LEVEL: str = Field("INFO", env="LOG_LEVEL")
-    
-    # API
+    APP_VERSION: str = "2.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Database
-    DATABASE_URL: str = Field(..., env="DATABASE_URL")
-    DB_ECHO: bool = Field(False, env="DB_ECHO")
-    
-    # Redis
-    REDIS_URL: str = Field("redis://localhost:6379", env="REDIS_URL")
+    # Environment
+    ENVIRONMENT: str = "development"
+    DEBUG: bool = True
+    LOG_LEVEL: str = "INFO"
     
     # Security
-    SECRET_KEY: str = Field(..., env="SECRET_KEY")
-    ALGORITHM: str = Field("HS256", env="ALGORITHM")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
+    SECRET_KEY: str = "your-very-secret-key-here-minimum-32-characters"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
-    # Azure Document Intelligence
-    AZURE_DOCUMENT_INTELLIGENCE_KEY: str = Field(..., env="AZURE_DOCUMENT_INTELLIGENCE_KEY")
-    AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: str = Field(..., env="AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT")
+    # Database Configuration
+    DB_USER: str = "docadmin"
+    DB_PASSWORD: str = "change-this-password"
+    DB_NAME: str = "document_compliance"
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
     
-    # Azure Storage
-    AZURE_STORAGE_CONNECTION_STRING: Optional[str] = Field(None, env="AZURE_STORAGE_CONNECTION_STRING")
-    AZURE_STORAGE_CONTAINER: str = Field("templates", env="AZURE_STORAGE_CONTAINER")
+    # Constructed database URL
+    DATABASE_URL: Optional[str] = None
     
-    # File Upload
-    MAX_UPLOAD_SIZE: int = Field(52428800, env="MAX_UPLOAD_SIZE")  # 50MB
-    ALLOWED_EXTENSIONS: List[str] = Field(
-        ["pdf", "doc", "docx", "tex", "png", "jpg", "jpeg"],
-        env="ALLOWED_EXTENSIONS"
-    )
-    UPLOAD_PATH: str = Field("uploads", env="UPLOAD_PATH")
+    @validator("DATABASE_URL", pre=True)
+    def construct_db_url(cls, v, values):
+        if v:
+            return v
+        user = values.get("DB_USER")
+        password = values.get("DB_PASSWORD")
+        host = values.get("DB_HOST")
+        port = values.get("DB_PORT")
+        name = values.get("DB_NAME")
+        return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
+    
+    # Redis Configuration
+    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_PASSWORD: Optional[str] = None
+    
+    # File Storage Configuration (Local instead of Azure)
+    STORAGE_TYPE: str = "local"  # Options: "local", "s3", "gcs"
+    LOCAL_STORAGE_PATH: str = "./uploads"
+    TEMPLATES_PATH: str = "./uploads/templates"
+    DOCUMENTS_PATH: str = "./uploads/documents"
+    CERTIFIED_PATH: str = "./uploads/certified"
+    REPORTS_PATH: str = "./uploads/reports"
+    VISUALIZATIONS_PATH: str = "./uploads/visualizations"
+    TEMP_PATH: str = "./uploads/temp"
+    
+    # File Upload Settings
+    MAX_UPLOAD_SIZE: int = 52428800  # 50MB in bytes
+    ALLOWED_EXTENSIONS: List[str] = ["pdf", "doc", "docx", "tex", "png", "jpg", "jpeg"]
+    UPLOAD_PATH: str = "uploads"
+    
+    # Document Processing Configuration
+    OCR_ENGINE: str = "tesseract"  # Options: "tesseract", "easyocr"
+    OCR_LANGUAGES: List[str] = ["eng", "ara"]  # English and Arabic
+    LAYOUT_MODEL: str = "lp://EfficientDete/PubLayNet"
     
     # Template Processing
-    TEMPLATE_CACHE_TTL: int = Field(3600, env="TEMPLATE_CACHE_TTL")
-    MAX_CONCURRENT_VALIDATIONS: int = Field(10, env="MAX_CONCURRENT_VALIDATIONS")
+    TEMPLATE_CACHE_TTL: int = 3600  # 1 hour
+    MAX_CONCURRENT_VALIDATIONS: int = 10
     
     # Validation Settings
-    DEFAULT_SIMILARITY_THRESHOLD: float = Field(0.85, env="DEFAULT_SIMILARITY_THRESHOLD")
-    SSIM_WEIGHT: float = Field(0.4, env="SSIM_WEIGHT")
-    PERCEPTUAL_HASH_WEIGHT: float = Field(0.3, env="PERCEPTUAL_HASH_WEIGHT")
-    LAYOUT_MATCH_WEIGHT: float = Field(0.3, env="LAYOUT_MATCH_WEIGHT")
+    DEFAULT_SIMILARITY_THRESHOLD: float = 0.85
+    SSIM_WEIGHT: float = 0.4
+    PERCEPTUAL_HASH_WEIGHT: float = 0.3
+    LAYOUT_MATCH_WEIGHT: float = 0.3
     
-    # Email
-    SMTP_HOST: Optional[str] = Field(None, env="SMTP_HOST")
-    SMTP_PORT: Optional[int] = Field(None, env="SMTP_PORT")
-    SMTP_USER: Optional[str] = Field(None, env="SMTP_USER")
-    SMTP_PASSWORD: Optional[str] = Field(None, env="SMTP_PASSWORD")
+    # Email Configuration (Optional)
+    SMTP_HOST: Optional[str] = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
     
-    # CORS
-    BACKEND_CORS_ORIGINS: List[str] = Field(
-        ["http://localhost:3000", "http://localhost:8000"],
-        env="BACKEND_CORS_ORIGINS"
-    )
+    # CORS Settings
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
     
-    @validator("ALLOWED_EXTENSIONS", pre=True)
-    def parse_extensions(cls, v):
-        if isinstance(v, str):
-            return [ext.strip().lower() for ext in v.split(",")]
-        return v
+    # Frontend URL (for QR codes and links)
+    FRONTEND_URL: str = "http://localhost:3000"
     
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    # Performance Settings
+    WORKER_CONNECTIONS: int = 4
+    WORKER_TIMEOUT: int = 300
+    
+    # Monitoring
+    ENABLE_METRICS: bool = True
+    METRICS_PORT: int = 9090
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+    
+    def create_directories(self):
+        """Create necessary directories for file storage"""
+        directories = [
+            self.LOCAL_STORAGE_PATH,
+            self.TEMPLATES_PATH,
+            self.DOCUMENTS_PATH,
+            self.CERTIFIED_PATH,
+            self.REPORTS_PATH,
+            self.VISUALIZATIONS_PATH,
+            self.TEMP_PATH
+        ]
+        
+        for directory in directories:
+            os.makedirs(directory, exist_ok=True)
 
 
-@lru_cache()
-def get_settings() -> Settings:
-    return Settings()
+# Create settings instance
+settings = Settings()
 
-
-settings = get_settings()
+# Create directories on startup
+settings.create_directories()

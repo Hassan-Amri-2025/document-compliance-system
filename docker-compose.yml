@@ -37,8 +37,6 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://${DB_USER:-docadmin}:${DB_PASSWORD:-docpass123}@postgres:5432/${DB_NAME:-document_compliance}
       - REDIS_URL=redis://redis:6379
-      - AZURE_DOCUMENT_INTELLIGENCE_KEY=${AZURE_DOCUMENT_INTELLIGENCE_KEY}
-      - AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
@@ -60,8 +58,6 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://${DB_USER:-docadmin}:${DB_PASSWORD:-docpass123}@postgres:5432/${DB_NAME:-document_compliance}
       - REDIS_URL=redis://redis:6379
-      - AZURE_DOCUMENT_INTELLIGENCE_KEY=${AZURE_DOCUMENT_INTELLIGENCE_KEY}
-      - AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}
     depends_on:
       - backend
       - redis

@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Tesseract
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     poppler-utils \
     tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-ara \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
@@ -27,8 +29,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY ./app /app
 
-# Create upload directory
-RUN mkdir -p /app/uploads
+# Create upload directories
+RUN mkdir -p /app/uploads/{templates,documents,certified,reports,visualizations,temp}
 
 # Expose port
 EXPOSE 8000

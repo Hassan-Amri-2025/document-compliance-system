@@ -9,30 +9,32 @@ alembic==1.13.1
 asyncpg==0.29.0
 psycopg2-binary==2.9.9
 
-# Azure Services
-azure-ai-documentintelligence==1.0.0b1
-azure-identity==1.15.0
-azure-storage-blob==12.19.0
-
-# Document Processing
-layoutparser==0.3.4
-torch==2.1.2
-torchvision==0.16.2
-pdf2image==1.16.3
-pypdf==3.17.4
-reportlab==4.0.8
-qrcode==7.4.2
+# Document Processing (Open Source)
+pytesseract==0.3.10  # Tesseract OCR wrapper
+layoutparser==0.3.4  # Document layout analysis
+torch==2.1.2  # Required for LayoutParser
+torchvision==0.16.2  # Required for LayoutParser
+pdf2image==1.16.3  # PDF to image conversion
+PyMuPDF==1.23.8  # Advanced PDF processing
+pypdf==3.17.4  # PDF manipulation
+reportlab==4.0.8  # PDF generation
+qrcode==7.4.2  # QR code generation
+python-docx==1.1.0  # Word document processing
 
 # Image Processing
-opencv-python==4.9.0.80
-pillow==10.2.0
-scikit-image==0.22.0
-imagehash==4.3.1
+opencv-python==4.9.0.80  # Computer vision
+pillow==10.2.0  # Image processing
+scikit-image==0.22.0  # Advanced image processing
+imagehash==4.3.1  # Perceptual hashing
+
+# OCR Alternatives (Optional)
+easyocr==1.7.1  # Alternative OCR engine (optional)
 
 # ML and AI
 numpy==1.26.3
 pandas==2.1.4
 scikit-learn==1.4.0
+scipy==1.11.4  # For SSIM calculations
 
 # Security
 python-jose[cryptography]==3.3.0
@@ -48,11 +50,23 @@ celery==5.3.4
 # Monitoring
 prometheus-client==0.19.0
 
+# File Storage (Local)
+aiofiles==23.2.1  # Async file operations
+
 # Testing
 pytest==7.4.4
 pytest-asyncio==0.23.3
 httpx==0.26.0
 
+# Development tools
+black==23.12.1
+isort==5.13.2
+flake8==7.0.0
+mypy==1.8.0
+
 # Other utilities
 python-dotenv==1.0.0
 tenacity==8.2.3
+tqdm==4.66.1  # Progress bars
+colorama==0.4.6  # Colored terminal output
+tabulate==0.9.0  # Table formatting
